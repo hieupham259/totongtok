@@ -235,16 +235,24 @@ def alt_get_tiktok_json(video_url,browser_name=None):
         return
     return tt_json
 
-def save_tiktok(video_url,
+def save_tiktok(tt_ent,
+                video_url,
                 save_video=False,
                 metadata_fn='',
                 browser_name=None,
-                return_fns=False):
+                return_fns=False,
+                destination=None):
     if 'cookies' not in globals() and browser_name is None:
         raise BrowserNotSpecifiedError
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
+
+    if destination is None:
+        os.makedirs(os.path.join(os.getcwd(), 'videos'), exist_ok=True)
+        destination = os.path.join(os.getcwd(), 'videos', tt_ent)
+    if save_video:
+        os.makedirs(destination, exist_ok=True)
 
     tt_json = get_tiktok_json(video_url,browser_name)
 
@@ -261,7 +269,7 @@ def save_tiktok(video_url,
                     headers['referer'] = 'https://www.tiktok.com/'
                     # include cookies with the video request
                     tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-                    with open(video_fn, 'wb') as fn:
+                    with open(os.path.join(destination, video_fn), 'wb') as fn:
                         fn.write(tt_video.content)
                     slidecount += 1
             else:
@@ -274,6 +282,7 @@ def save_tiktok(video_url,
                 headers['referer'] = 'https://www.tiktok.com/'
                 # include cookies with the video request
                 tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+            video_fn = os.path.join(destination, video_fn)
             with open(video_fn, 'wb') as fn:
                 fn.write(tt_video.content)
             print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
@@ -307,6 +316,7 @@ def save_tiktok(video_url,
             headers['referer'] = 'https://www.tiktok.com/'
             # include cookies with the video request
             tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+            video_fn = os.path.join(destination, video_fn)
             with open(video_fn, 'wb') as fn:
                 fn.write(tt_video.content)
             print("Saved video\n", video_url, "\nto\n", os.getcwd())
@@ -373,7 +383,8 @@ async def get_video_urls(tt_ent,
             video_list.append(video_url)
     return video_list[:video_ct]
 
-def save_tiktok_multi_urls(video_urls,
+def save_tiktok_multi_urls(tt_ent,
+                           video_urls,
                            save_video=False,
                            metadata_fn='',
                            sleep=4,
@@ -385,7 +396,7 @@ def save_tiktok_multi_urls(video_urls,
     else:
         tt_urls = video_urls
     for u in tt_urls:
-        save_tiktok(u,save_video,metadata_fn,browser_name)
+        save_tiktok(tt_ent, u, save_video, metadata_fn, browser_name)
         time.sleep(random.randint(1, sleep))
     print('Saved',len(tt_urls),'videos and/or lines of metadata')
 
@@ -401,7 +412,8 @@ def save_tiktok_multi_page(tt_ent,
                                             ent_type,
                                             video_ct,
                                             headless))
-    save_tiktok_multi_urls(video_urls,
+    save_tiktok_multi_urls(tt_ent,
+                           video_urls,
                            save_video,
                            metadata_fn,
                            sleep,
