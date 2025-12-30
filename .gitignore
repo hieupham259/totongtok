@@ -81,5 +81,5 @@ coverage.xml
 playwright-report/
 playwright/.cache/
 
-# Videos
-videos/
+# outputs
+outputs/

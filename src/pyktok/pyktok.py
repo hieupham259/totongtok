@@ -210,7 +210,8 @@ def get_tiktok_json(video_url,browser_name=None):
     tt_script = soup.find('script', attrs={'id':"SIGI_STATE"})
     try:
         tt_json = json.loads(tt_script.string)
-    except AttributeError:
+    except AttributeError as e:
+        print("AttributeError:", e)
         return
     return tt_json
 
@@ -247,12 +248,19 @@ def save_tiktok(tt_ent,
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
+    
+    outputs = os.path.join(os.getcwd(), 'outputs')
+    os.makedirs(outputs, exist_ok=True)
 
     if destination is None:
-        os.makedirs(os.path.join(os.getcwd(), 'videos'), exist_ok=True)
-        destination = os.path.join(os.getcwd(), 'videos', tt_ent)
+        os.makedirs(os.path.join(outputs, 'videos'), exist_ok=True)
+        os.makedirs(os.path.join(outputs, 'images'), exist_ok=True)
+
+        destination = os.path.join(outputs, 'videos', tt_ent)
+        images_destination = os.path.join(outputs, 'images', tt_ent)
     if save_video:
         os.makedirs(destination, exist_ok=True)
+        os.makedirs(images_destination, exist_ok=True)
 
     tt_json = get_tiktok_json(video_url,browser_name)
 
@@ -306,6 +314,9 @@ def save_tiktok(tt_ent,
         tt_json = alt_get_tiktok_json(video_url,browser_name)
         if save_video == True:
             regex_url = re.findall(url_regex, video_url)[0]
+            # with open(os.path.join(outputs, 'debug_tt_json.json'),'w',encoding='utf-8') as debug_fn:
+            #     json.dump(tt_json,debug_fn,ensure_ascii=False,indent=4)
+
             video_fn = regex_url.replace('/', '_') + '.mp4'
             try:
                 tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
@@ -314,12 +325,26 @@ def save_tiktok(tt_ent,
             except:
                 tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
-            # include cookies with the video request
-            tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-            video_fn = os.path.join(destination, video_fn)
-            with open(video_fn, 'wb') as fn:
-                fn.write(tt_video.content)
-            print("Saved video\n", video_url, "\nto\n", os.getcwd())
+            try:
+                # include cookies with the video request
+                tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+                video_fn = os.path.join(destination, video_fn)
+                with open(video_fn, 'wb') as fn:
+                    fn.write(tt_video.content)
+                print("Saved video\n", video_url, "\nto\n", os.getcwd())
+            except:
+                # handle video that contains images only
+                print("Video appears to contain images only; saving images instead.")
+                if 'imagePost' in tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']:
+                    slidecount = 1
+                    for slide in tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['imagePost']['images']:
+                        video_fn = regex_url.replace('/', '_') + '_slide_' + str(slidecount) + '.jpeg'
+                        tt_video_url = slide['imageURL']['urlList'][0]
+                        # include cookies with the video request
+                        tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+                        with open(os.path.join(images_destination, video_fn), 'wb') as fn:
+                            fn.write(tt_video.content)
+                        slidecount += 1
 
         if metadata_fn != '':
             data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
