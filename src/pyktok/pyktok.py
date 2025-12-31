@@ -437,6 +437,9 @@ def save_tiktok_multi_page(tt_ent,
                                             ent_type,
                                             video_ct,
                                             headless))
+    if not video_urls or len(video_urls) == 0:
+        print('No videos found for', tt_ent)
+        return
     save_tiktok_multi_urls(tt_ent,
                            video_urls,
                            save_video,
