@@ -211,7 +211,7 @@ def get_tiktok_json(video_url,browser_name=None):
     try:
         tt_json = json.loads(tt_script.string)
     except AttributeError as e:
-        print("AttributeError:", e)
+        # print("AttributeError:", e)
         return
     return tt_json
 
