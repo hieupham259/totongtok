@@ -10,5 +10,5 @@ def save_video_from(tt_ent: str, ent_type: str='user'):
 
 
 if __name__ == "__main__":
-    save_video_from('_nguyenanhngocc_', ent_type='user')
-    # save_video_from('sinhton', ent_type='hashtag')
+    # save_video_from('_nguyenanhngocc_', ent_type='user')
+    save_video_from('sinhton', ent_type='hashtag')

@@ -366,6 +366,50 @@ def save_tiktok(tt_ent,
 
 # the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/user_example.py
 
+async def custom_video(api, hashtag_name, count=30, cursor=0, **kwargs):
+    hashtag_name = (hashtag_name or "").strip()
+    if hashtag_name.startswith('#'):
+        hashtag_name = hashtag_name[1:]
+
+    hashtag = api.hashtag(name=hashtag_name)
+
+    ms_token_to_use = kwargs.get("ms_token", None)
+    if ms_token_to_use is None:
+        ms_token_to_use = ms_token
+
+    if getattr(hashtag, "id", None) is None:
+        await hashtag.info(ms_token=ms_token_to_use,
+                           headers=kwargs.get("headers"),
+                           session_index=kwargs.get("session_index"))
+
+    found = 0
+    while found < count:
+        params = {
+            "challengeID": hashtag.id,
+            "count": count,
+            "cursor": cursor,
+            "from_page": "challenge",
+        }
+
+        resp = await api.make_request(
+            url="https://www.tiktok.com/api/challenge/item_list/",
+            params=params,
+            headers=kwargs.get("headers"),
+            session_index=kwargs.get("session_index"),
+        )
+
+        if resp is None:
+            raise Exception("TikTok returned an invalid response.")
+
+        for video in resp.get("itemList", []):
+            yield api.video(data=video)
+            found += 1
+
+        if not resp.get("hasMore", False):
+            return
+
+        cursor = resp.get("cursor")
+
 async def get_video_urls(tt_ent,
                          ent_type="user",
                          video_ct=30,
@@ -390,8 +434,11 @@ async def get_video_urls(tt_ent,
         else:
             ent = api.video(url=tt_ent)
 
-        if ent_type in ['user','hashtag']:
+        if ent_type == 'user':
             async for video in ent.videos(count=video_ct):
+                tt_list.append(video.as_dict)
+        elif ent_type == 'hashtag':
+            async for video in custom_video(api, tt_ent, count=video_ct):
                 tt_list.append(video.as_dict)
         else:
             async for related_video in ent.related_videos(count=video_ct):
