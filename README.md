@@ -109,6 +109,14 @@ TikTok's servers may not love it if you run some of the above functions at full 
 
 Pyktok can also be run from a browser window using `streamlit`. To do so, simply navigate to your `pyktok` directory in a command prompt (it should contain the file `app.py`) and run `streamlit run app.py`. This should pop up a browser window that allows you to control Pyktok using graphical affordances.
 
+**Edit videos with OpenCut**
+
+After downloading videos with Pyktok, you can edit them using [OpenCut](https://github.com/OpenCut-app/OpenCut).
+
+- By default, Pyktok saves videos under `outputs/videos/<entity>/` (unless you pass a custom `destination`).
+- Open OpenCut and import or drag-and-drop the downloaded `.mp4` files from that folder.
+- Edit as needed, then export your finished video from OpenCut.
+
 Mostly written by [@dfreelon](https://github.com/dfreelon/) with contributions from (in chronological order): 
 - [@pkreissel](https://github.com/pkreissel)
 - [@p-bach](https://github.com/p-bach)
