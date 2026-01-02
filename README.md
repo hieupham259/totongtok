@@ -116,6 +116,12 @@ After downloading videos with Pyktok, you can edit them using [OpenCut](https://
 - By default, Pyktok saves videos under `outputs/videos/<entity>/` (unless you pass a custom `destination`).
 - Open OpenCut and import or drag-and-drop the downloaded `.mp4` files from that folder.
 - Edit as needed, then export your finished video from OpenCut.
+  
+**Extend videos with OpenAI/Sora2**
+
+[Seamlessly generate extended Sora 2 videos beyond OpenAI’s 12-second limit](https://github.com/OpenCut-app/OpenCut).
+
+OpenAI’s Sora video generation model currently restricts output to 12-second clips. By leveraging the final frame of each generation as context for the next, and intelligently breaking down your prompt into coherent segments that mesh well, Sora Extend enables the creation of high-quality, extended-duration videos with continuity.
 
 Mostly written by [@dfreelon](https://github.com/dfreelon/) with contributions from (in chronological order): 
 - [@pkreissel](https://github.com/pkreissel)
