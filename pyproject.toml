@@ -3,10 +3,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pyktok"
+name = "totongtok"
 version = "0.0.31"
 authors = [
-  { name="Deen Freelon", email="dfreelon@gmail.com"},
+  { name="Khi dot cam sung"},
 ]
 description = "A package for collecting TikTok videos and metadata."
 readme = "README.md"
