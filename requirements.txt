@@ -9,3 +9,5 @@ TikTokApi>=7.0.0
 openai
 opencv-python
 Pillow
+imageio-ffmpeg
+moviepy
